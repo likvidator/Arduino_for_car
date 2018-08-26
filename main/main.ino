@@ -29,10 +29,11 @@ int JVCSkipFwdHoldVal;
 int JVCSkipBackHoldVal;
 
 
-int count_button = 2 * 9; 
+int count_button = (2 * 9) - 2; 
 int traning_mode = false;
 int analog=0;// для чтения аналогового сигнала
 int step_memory = 0;
+bool read_EEPROM = true;
 unsigned long time;// переменная для хранения времени
 
 
@@ -46,6 +47,14 @@ void setup()
 }
 
 void loop(){
+   if (read_EEPROM){
+       read_from_EEPROM();
+       printAll_EEPROM();
+       read_EEPROM = false;
+    }
+
+
+  
     boolean button1 = !digitalRead(A3);
     analog = analogRead(A0);
 
@@ -69,7 +78,6 @@ void loop(){
           Serial.println(start_point);
           Serial.print("Now");
           Serial.println(analogRead(A0));
-           delay(500);
         }
         if (!digitalRead(A3) == true){
             //Any Impossible Value
@@ -89,6 +97,8 @@ void loop(){
         Serial.println("Write done");
 
         if (step_memory > count_button) { 
+          read_from_EEPROM();
+          printAll_EEPROM();
           traning_mode = false;
         }
       
@@ -102,14 +112,49 @@ void loop(){
 
 
 
-
-    delay(500);
-    printAll_EEPROM();
-    delay(5000);
+    if (between(JVCVolUpVal, analogRead(A0))){
+        JVCVolUp();
+        Serial.println("JVCVolUpVal");
+      }
+    if (between(JVCVolDnVal, analogRead(A0))){
+        JVCVolDn();
+        Serial.println("JVCVolDnVal");
+      }
+    if (between(JVCSourceVal, analogRead(A0))){
+        JVCSource();
+        Serial.println("JVCSourceVal");
+      }
+    if (between(JVCSoundVal, analogRead(A0))){
+        JVCSound();
+        Serial.println("JVCSoundVal");
+      }
+    if (between(JVCMuteVal, analogRead(A0))){
+        JVCMute();
+        Serial.println("JVCMuteVal");
+      }
+    if (between(JVCSkipFwdVal, analogRead(A0))){
+        JVCSkipFwd();
+        Serial.println("JVCSkipFwdVal");
+      }
+    if (between(JVCSkipBack, analogRead(A0))){
+        JVCSkipBack();
+        Serial.println("JVCSkipBack");
+      }
+    if (between(JVCSkipFwdHoldVal, analogRead(A0))){
+        JVCSkipFwdHold();
+        Serial.println("JVCSkipFwdHoldVal");
+      }
+    if (between(JVCSkipBackHoldVal, analogRead(A0))){
+        JVCSkipBackHold();
+        Serial.println("JVCSkipBackHoldVal");
+      }
 
 }
 
-
+boolean between(int button, int analog){
+    return (analog < button + fault && analog > button - fault );
+  
+  }
 
 void printAll_EEPROM(){
     for (int i = 0; i <= count_button; i+=2){
